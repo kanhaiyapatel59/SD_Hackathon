@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SALESTORM — System Design Hackathon Visual Presentation</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card-bg: #1e293b;
+      --accent: #38bdf8;
+      --accent-hover: #0ea5e9;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --success: #10b981;
+      --danger: #ef4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      width: 320px;
+      background-color: #0f172a;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .brand {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      background: #111827;
+    }
+
+    .brand h1 {
+      font-size: 1.25rem;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .nav-list {
+      list-style: none;
+      overflow-y: auto;
+      padding: 12px;
+      flex-grow: 1;
+    }
+
+    .nav-item {
+      padding: 10px 14px;
+      margin-bottom: 6px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid transparent;
+    }
+
+    .nav-item:hover {
+      background-color: rgba(56, 189, 248, 0.1);
+      color: var(--text);
+    }
+
+    .nav-item.active {
+      background-color: var(--accent);
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    .nav-item.highlight {
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      background: rgba(239, 68, 68, 0.1);
+      color: #fca5a5;
+    }
+    .nav-item.highlight.active {
+      background: #ef4444;
+      color: white;
+      border-color: #ef4444;
+      font-weight: 700;
+    }
+
+    /* Main Viewport */
+    .main {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background-color: var(--bg);
+    }
+
+    .top-bar {
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #1e293b;
+    }
+
+    .title-area h2 {
+      font-size: 1.15rem;
+      font-weight: 600;
+    }
+
+    .title-area span {
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 7px 14px;
+      background: #334155;
+      color: white;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn:hover {
+      background: #475569;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #0f172a;
+      border-color: var(--accent);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .badge {
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.5); }
+
+    .content-area {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .diagram-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 480px;
+      overflow-x: auto;
+    }
+
+    .bullets-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 24px;
+    }
+
+    .bullets-card h3 {
+      font-size: 0.9rem;
+      color: var(--accent);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+    }
+
+    .bullets-card ul {
+      list-style-position: inside;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .bullets-card strong {
+      color: var(--text);
+    }
+
+    #diagram-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    #diagram-container svg {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="brand">
+      <h1>⚡ SALESTORM</h1>
+      <p>10,000 Customers vs. 100 Units Flash Sale</p>
+    </div>
+    <ul class="nav-list" id="nav-list">
+      <!-- Generated via JS -->
+    </ul>
+  </aside>
+
+  <!-- Main Presentation Viewport -->
+  <main class="main">
+    <header class="top-bar">
+      <div class="title-area">
+        <span id="slide-num">DIAGRAM 1 OF 11</span>
+        <h2 id="slide-title">The Critical 10,000 → 100 Architecture Diagram</h2>
+      </div>
+      <div class="actions">
+        <span class="badge badge-danger">INVARIANT: SUCCESSFUL_RESERVATIONS &le; 100</span>
+        <button class="btn" onclick="prevDiagram()">◀ Prev</button>
+        <button class="btn btn-primary" onclick="nextDiagram()">Next ▶</button>
+      </div>
+    </header>
+
+    <div class="content-area">
+      <div class="diagram-card">
+        <div id="diagram-container"></div>
+      </div>
+
+      <div class="bullets-card">
+        <h3>Core Architectural Takeaways</h3>
+        <ul id="bullets-list"></ul>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'dark',
+      securityLevel: 'loose',
+      themeVariables: {
+        darkMode: true,
+        background: '#1e293b',
+        primaryColor: '#38bdf8',
+        primaryTextColor: '#f8fafc',
+        primaryBorderColor: '#0ea5e9',
+        lineColor: '#94a3b8',
+        secondaryColor: '#334155',
+        tertiaryColor: '#0f172a'
+      }
+    });
+
+    const diagrams = [
+      {
+        id: "crit-10k-100",
+        name: "⭐ 1. The Critical 10k → 100 Flow",
+        title: "The Critical 10,000 → 100 Architecture Diagram",
+        isHighlight: true,
+        code: `graph TD
+    Requests["10,000 Concurrent Buy Requests"] --> Gateway["API Gateway"]
+    Gateway --> ResSvc["Reservation Service"]
+    ResSvc --> StockCheck[("Inventory Stock<br/>Available = 100 Units")]
+    
+    StockCheck -->|"Atomic Decrement"| Decision{"Is Stock Available?"}
+
+    Decision -->|"YES - Requests 1 to 100"| Winners["FIRST 100 REQUESTS<br/>Status: RESERVED - 10-min hold"]
+    Decision -->|"NO - Requests 101 to 10,000"| Losers["REMAINING 9,900 REQUESTS<br/>Status: SOLD OUT - Fast Rejection"]
+
+    Winners --> Payment["Payment Processing<br/>Idempotent Card Authorization"]
+    Payment --> Order["Order Confirmed<br/>Stock Becomes SOLD"]`,
+        bullets: [
+          "<strong>Strict Invariant Enforced:</strong> SUCCESSFUL_RESERVATIONS <= 100. Available inventory can never drop below zero.",
+          "<strong>Instant Separation:</strong> The first 100 requests decrement the counter atomically from 100 to 0 and claim temporary leases.",
+          "<strong>Fast Failure for 9,900:</strong> The remaining 9,900 requests evaluate stock == 0 and receive an immediate SOLD_OUT response in < 15ms.",
+          "<strong>Zero Database Overload:</strong> Rejected requests never touch the SQL database, shielding backend connections from collapse."
+        ]
+      },
+      {
+        id: "one-page-blueprint",
+        name: "2. Final One-Page Blueprint",
+        title: "Final Architecture One-Page Blueprint",
+        isHighlight: false,
+        code: `graph TD
+    subgraph TrafficFlow ["10,000 Customers Flash-Sale Pipeline"]
+        Users["10,000 Concurrent Customers"] --> Traffic["Traffic Management<br/>CDN / WAF / Virtual Waiting Room"]
+        Traffic --> LB["Load Balancer"]
+        LB --> APIGW["API Gateway"]
+        APIGW --> Checkout["Sale / Checkout Service"]
+        Checkout --> ResEngine["Inventory / Reservation Service"]
+        
+        ResEngine -->|"Atomic Decrement"| StockCheck{"Stock Check<br/>Initial = 100"}
+        
+        StockCheck -->|"First 100"| SuccessRes["100 RESERVED LEASES<br/>10-Minute Hold"]
+        StockCheck -->|"Remaining 9,900"| SoldOut["9,900 SOLD OUT<br/>Instant 409 Conflict"]
+        
+        SuccessRes --> Payment["Payment Service<br/>Idempotent Gateway Call"]
+        Payment --> Order["Order Service<br/>State: CONFIRMED"]
+        Order --> Dispatch["Shipment & Notification<br/>Carrier Tracking & SMS"]
+    end
+
+    subgraph Infrastructure ["Supporting Infrastructure"]
+        CacheStore[("Redis / Cache<br/>Atomic Counter: 100<br/>User Duplicate Locks")]
+        SQLStore[("SQL Database<br/>Master Inventory<br/>Orders & Payments")]
+        EventBus{{"Message Queue<br/>Durable Event Buffering<br/>30s Outage Recovery"}}
+        Telemetry["Monitoring & Tracing<br/>Prometheus / Jaeger / Logs"]
+    end
+
+    ResEngine <--> CacheStore
+    ResEngine -.-> SQLStore
+    Payment --> SQLStore
+    Payment --> EventBus
+    EventBus --> Order
+    Order --> SQLStore
+    EventBus --> Dispatch`,
+        bullets: [
+          "<strong>One-Way Pipeline:</strong> Clean progression from traffic ingress through atomic reservation, payment, and order generation.",
+          "<strong>Invariant Enforced:</strong> Exactly 100 units transition to RESERVED; 9,900 requests fail fast at the cache layer with zero database contention.",
+          "<strong>Decoupled by Queue:</strong> If downstream fulfillment or Order Service stalls, the Message Queue buffers events with zero data loss.",
+          "<strong>Full Observability:</strong> Telemetry tracks latency, queue backlog, and guarantees available + reserved + sold == 100 at all times."
+        ]
+      },
+      {
+        id: "hld",
+        name: "3. High-Level Architecture (HLD)",
+        title: "High-Level Architecture (HLD)",
+        isHighlight: false,
+        code: `graph TB
+    subgraph Users ["10,000 Simultaneous Customers"]
+        Clients["Shopper Web & Mobile Apps"]
+    end
+
+    subgraph Edge ["Edge & Ingress Tier"]
+        CDN["CDN / WAF<br/>DDoS Shield & Static Cache"]
+        LB["Load Balancer"]
+        Gateway["API Gateway<br/>Rate Limiter & Auth"]
+    end
+
+    subgraph Services ["Core Stateless Microservices"]
+        ProductSvc["Product Service"]
+        SaleSvc["Cart / Sale Service"]
+        CheckoutSvc["Checkout Service"]
+        ResSvc["Inventory / Reservation Service"]
+        PaymentSvc["Payment Service"]
+        OrderSvc["Order Service"]
+        ShipmentSvc["Shipment / Notification Service"]
+    end
+
+    subgraph DataTier ["Data & Streaming Tier"]
+        Cache[("Redis / Cache<br/>Atomic Stock Counter = 100")]
+        DB[("SQL Database<br/>Master Inventory & Orders")]
+        Queue{{"Message Queue<br/>payment.completed"}}
+    end
+
+    Clients --> CDN
+    CDN --> LB
+    LB --> Gateway
+
+    Gateway --> ProductSvc
+    Gateway --> SaleSvc
+    Gateway --> CheckoutSvc
+    Gateway --> ResSvc
+    Gateway --> PaymentSvc
+    Gateway --> OrderSvc
+
+    ResSvc <-->|"Atomic Stock Decrement"| Cache
+    ResSvc -.->|"Async Sync"| DB
+    PaymentSvc -->|"Record Payment"| DB
+    PaymentSvc -->|"Publish PaymentCompleted"| Queue
+
+    Queue -->|"Consume Event"| OrderSvc
+    OrderSvc -->|"Create Confirmed Order"| DB
+    OrderSvc -->|"Publish OrderConfirmed"| Queue
+    Queue -->|"Consume Dispatch"| ShipmentSvc`,
+        bullets: [
+          "<strong>Traffic Ingress:</strong> CDN and WAF filter and cache discovery traffic, forwarding only active Buy requests to the API Gateway.",
+          "<strong>Fast-Path Reservation:</strong> The Reservation Service uses in-memory Cache for atomic decrement in < 2ms, shielding the database.",
+          "<strong>Asynchronous Handoff:</strong> Payment completion emits an event to the Message Queue, decoupling Payment from Order creation.",
+          "<strong>Resilient Order Creation:</strong> The Order Service consumes messages from the queue; if Order Service goes down, messages buffer safely."
+        ]
+      },
+      {
+        id: "system-context",
+        name: "4. System Context Diagram",
+        title: "System Context Diagram (C4 Level 1)",
+        isHighlight: false,
+        code: `graph TD
+    Customer["Customer / Shopper"]
+    Admin["Platform Admin"]
+
+    subgraph SALESTORM ["SALESTORM Flash-Sale Platform"]
+        CoreEngine["SALESTORM Core System<br/>Catalog, Reservation, Checkout, Orders"]
+    end
+
+    PSP["Payment Gateway<br/>Stripe / Adyen"]
+    Carrier["Shipping Partner<br/>FedEx / DHL"]
+    Notification["Notification Service<br/>Twilio / SendGrid"]
+
+    Customer -->|"1. Browse & Buy Now (HTTPS)"| CoreEngine
+    Admin -->|"Manage flash-sale inventory"| CoreEngine
+    CoreEngine -->|"2. Authorize & Capture Charge"| PSP
+    CoreEngine -->|"3. Dispatch package manifest"| Carrier
+    CoreEngine -->|"4. Send SMS & Email alerts"| Notification`,
+        bullets: [
+          "<strong>Customer Interface:</strong> Customers interact via HTTPS to browse catalogs and initiate flash reservations.",
+          "<strong>Payment Isolation:</strong> All card transactions route to external PCI-compliant Payment Gateways.",
+          "<strong>Fulfillment & Logistics:</strong> Carrier integration is asynchronous; shipping manifests dispatch post-payment.",
+          "<strong>Notification Decoupling:</strong> SMS/Email notifications are non-blocking; failure never delays or cancels an order."
+        ]
+      },
+      {
+        id: "concurrency",
+        name: "5. Inventory Concurrency",
+        title: "Inventory Concurrency Diagram",
+        isHighlight: false,
+        code: `graph TD
+    User1["Customer 1"] --> ResSvc["Reservation Service"]
+    User2["Customer 2"] --> ResSvc
+    User3["Customer 3"] --> ResSvc
+    UserDots["..."] --> ResSvc
+    User9999["Customer 9,999"] --> ResSvc
+    User10000["Customer 10,000"] --> ResSvc
+
+    ResSvc --> AtomicOp["Atomic Inventory Update<br/>Cache Lua Script / SQL Conditional Update<br/>WHERE available_quantity > 0"]
+
+    AtomicOp --> Branch{"Check Remaining Stock"}
+
+    Branch -->|"Stock > 0: First 100"| Reserve["RESERVE UNIT<br/>Decrement Stock by 1"]
+    Branch -->|"Stock = 0: Remaining 9,900"| SoldOut["SOLD OUT<br/>Instant HTTP 409"]`,
+        bullets: [
+          "<strong>Atomic Serialization:</strong> Concurrent incoming requests pass through a serialized atomic gate.",
+          "<strong>Guaranteed Unit Allocation:</strong> Each winning request atomically decrements exactly 1 unit; two threads can never claim the same unit.",
+          "<strong>Conditional Gate:</strong> The condition available_quantity > 0 ensures that once stock hits 0, all subsequent updates fail immediately.",
+          "<strong>Immediate Rejection:</strong> Requests 101 to 10,000 fail immediately without waiting or blocking server threads."
+        ]
+      },
+      {
+        id: "purchase-seq",
+        name: "6. Purchase Sequence (UML)",
+        title: "Purchase Sequence Diagram (UML)",
+        isHighlight: false,
+        code: `sequenceDiagram
+    autonumber
+    actor Customer as Customer
+    participant GW as API Gateway
+    participant Sale as Sale Service
+    participant Inv as Inventory Service
+    participant DB as SQL Database
+    participant Pay as Payment Service
+    participant Order as Order Service
+
+    Customer->>GW: 1. Click "Buy Now"
+    GW->>Sale: 2. Request Purchase
+    Sale->>Inv: 3. Reserve Stock
+
+    Note over Inv, DB: Atomic Reservation Execution
+    Inv->>DB: 4. Atomic Reservation (stock > 0)
+    alt Stock Available (First 100)
+        DB-->>Inv: 5. Stock Decremented (Success)
+        Inv-->>Pay: 6. Initiate Payment
+        Pay-->>Order: 7. Payment Succeeded
+        Order->>DB: 8. Create Confirmed Order
+        Order-->>Customer: 9. Order Confirmed (HTTP 200)
+    else Stock Unavailable (Remaining 9,900)
+        DB-->>Inv: 5. 0 Rows Updated (Out of Stock)
+        Inv-->>Sale: 6. SOLD_OUT
+        Sale-->>Customer: 7. HTTP 409: Item Sold Out
+    end`,
+        bullets: [
+          "<strong>End-to-End Flow:</strong> Traces a purchase from customer click through gateway, sale, inventory reservation, payment, and order creation.",
+          "<strong>Atomic Gate:</strong> The Database/Cache atomic reservation determines whether the flow branches to payment or immediate rejection.",
+          "<strong>Winning Path:</strong> Successful stock holds immediately trigger payment processing and order confirmation.",
+          "<strong>Failing Path:</strong> Requests past 100 receive an immediate SOLD_OUT response, terminating without invoking payment rails."
+        ]
+      },
+      {
+        id: "res-state",
+        name: "7. Reservation State Machine",
+        title: "Reservation State Machine Diagram",
+        isHighlight: false,
+        code: `stateDiagram-v2
+    [*] --> AVAILABLE : Initial Stock = 100
+
+    AVAILABLE --> RESERVED : Buy Now Clicked (Atomic Decrement)
+    
+    RESERVED --> PAYMENT_PENDING : User Lands on Checkout
+    
+    PAYMENT_PENDING --> CONFIRMED : Payment Captured Successfully
+    
+    CONFIRMED --> SOLD : Order Created (Permanent Sale)
+
+    RESERVED --> TIMEOUT : 10-Minute Timeout Expires
+    TIMEOUT --> RELEASED : Trigger Stock Reclamation
+    
+    PAYMENT_PENDING --> PAYMENT_FAILED : Card Declined
+    PAYMENT_FAILED --> RELEASED : Trigger Immediate Release
+
+    RELEASED --> AVAILABLE : Stock Incremented (+1)
+
+    SOLD --> [*]`,
+        bullets: [
+          "<strong>Happy Path:</strong> AVAILABLE -> RESERVED -> PAYMENT_PENDING -> CONFIRMED -> SOLD.",
+          "<strong>Lease Expiry Path:</strong> If 10 minutes elapse without payment, state moves RESERVED -> TIMEOUT -> RELEASED -> AVAILABLE.",
+          "<strong>Payment Failure Path:</strong> If the card is declined, state moves PAYMENT_PENDING -> PAYMENT_FAILED -> RELEASED -> AVAILABLE.",
+          "<strong>Zero Inventory Stranded:</strong> Any failure or timeout automatically returns the unit back to AVAILABLE for waiting customers."
+        ]
+      },
+      {
+        id: "pay-order-recovery",
+        name: "8. Payment & Order 30s Outage",
+        title: "Payment & Order 30s Outage Recovery",
+        isHighlight: false,
+        code: `sequenceDiagram
+    autonumber
+    actor Customer as Customer
+    participant PaySvc as Payment Service
+    participant PSP as Payment Gateway
+    participant Queue as Message Queue
+    participant OrderSvc as Order Service
+
+    Note over Customer, OrderSvc: Scenario 1: Duplicate Payment Request (Idempotency Key)
+    Customer->>PaySvc: Click "Pay" (Idempotency-Key: KEY-1)
+    Customer->>PaySvc: Double Click "Pay" (Same Idempotency-Key: KEY-1)
+    PaySvc->>PaySvc: Check Key: First in-flight, Second returns Cached Result (No Double Charge)
+
+    Note over Customer, OrderSvc: Scenario 2: Payment Timeout & Retry
+    PaySvc->>PSP: Authorize Payment (Timeout after 3s)
+    PSP--xPaySvc: Socket Timeout (Unknown state)
+    PaySvc->>PSP: Query Transaction Status by Unique Ref
+    PSP-->>PaySvc: Return "Charge Succeeded" (Recovered)
+
+    Note over Customer, OrderSvc: Scenario 3: Order Service Downtime for 30 Seconds
+    PaySvc->>Queue: Publish PaymentCompletedEvent
+    Queue-->>PaySvc: Event Persisted to Disk (ACK)
+    PaySvc-->>Customer: HTTP 200 "Payment Successful"
+
+    Note over OrderSvc: Order Service is DOWN / CRASHED (30 Seconds)
+    Note over Queue: Message stays safely buffered in queue log
+
+    Note over OrderSvc: T = 31s: Order Service Restarts & Connects
+    Queue->>OrderSvc: Deliver buffered PaymentCompletedEvent
+    OrderSvc->>OrderSvc: Deduplicate against DB & Insert Confirmed Order
+    OrderSvc->>Queue: Commit Offset (Order Created with Zero Loss!)`,
+        bullets: [
+          "<strong>Duplicate Protection:</strong> Duplicate clicks carrying the same Idempotency-Key are resolved from the cache/database with zero duplicate charges.",
+          "<strong>Timeout Reconciliation:</strong> Payment timeouts query the gateway status by unique reference before deciding to charge or abort.",
+          "<strong>Durable Queue Buffering:</strong> If the Order Service crashes for 30 seconds post-payment, events buffer safely on message queue disks.",
+          "<strong>Automatic Consumer Catch-up:</strong> Upon reboot, the Order Service consumes all pending messages and materializes orders with 100% data preservation."
+        ]
+      },
+      {
+        id: "deployment",
+        name: "9. Deployment Diagram (Multi-AZ)",
+        title: "Deployment Diagram (Multi-AZ)",
+        isHighlight: false,
+        code: `graph TB
+    Internet(("Internet Users")) --> CDN["CDN / WAF<br/>Edge Caching and DDoS"]
+    CDN --> LB["Load Balancer"]
+
+    subgraph AppCluster ["Horizontal Stateless Application Tier"]
+        App1["App Instance 1"]
+        App2["App Instance 2"]
+        App3["App Instance 3"]
+    end
+
+    LB --> App1
+    LB --> App2
+    LB --> App3
+
+    subgraph CacheCluster ["In-Memory Cache Cluster"]
+        CacheMaster[("Cache Primary")]
+        CacheSlave[("Cache Replica")]
+        CacheMaster -.-> CacheSlave
+    end
+
+    subgraph MQCluster ["Message Queue Cluster"]
+        Broker1{{"Message Broker 1"}}
+        Broker2{{"Message Broker 2"}}
+        Broker1 <--> Broker2
+    end
+
+    subgraph DBCluster ["Relational Database Tier"]
+        DBMaster[("SQL Database Primary")]
+        DBReplica[("SQL Read Replica")]
+        DBMaster -.-> DBReplica
+    end
+
+    App1 --> CacheMaster
+    App2 --> CacheMaster
+    App3 --> CacheMaster
+
+    App1 --> Broker1
+    App2 --> Broker1
+    App3 --> Broker2
+
+    App1 --> DBMaster
+    App2 --> DBMaster
+    App3 --> DBMaster
+
+    App1 -.-> DBReplica
+    App2 -.-> DBReplica
+    App3 -.-> DBReplica`,
+        bullets: [
+          "<strong>Horizontal Scaling:</strong> Stateless application instances scale out behind the Load Balancer to handle traffic surges.",
+          "<strong>Cache Primary-Replica:</strong> Fast-path writes target Cache Primary; replicas stand by for sub-second automated failover.",
+          "<strong>Durable Message Clustering:</strong> Message brokers are clustered to guarantee zero message loss during broker restarts.",
+          "<strong>Database Read/Write Splitting:</strong> Heavy read queries target the Read Replica, reserving the Primary for critical inventory and payments."
+        ]
+      },
+      {
+        id: "db-erd",
+        name: "10. Database ER Diagram",
+        title: "Database Entity-Relationship (ER) Diagram",
+        isHighlight: false,
+        code: `erDiagram
+    CUSTOMER ||--o{ INVENTORY_RESERVATION : reserves
+    CUSTOMER ||--o{ ORDERS : places
+    CUSTOMER ||--o{ PAYMENT : makes
+
+    PRODUCT ||--|| INVENTORY : has
+    PRODUCT ||--o{ INVENTORY_RESERVATION : allocated_in
+    PRODUCT ||--o{ ORDER_ITEM : ordered_as
+
+    INVENTORY_RESERVATION ||--|| ORDERS : creates
+    ORDERS ||--o{ ORDER_ITEM : contains
+    ORDERS ||--|| PAYMENT : settled_by
+
+    CUSTOMER {
+        uuid customer_id PK
+        string email UK
+        string full_name
+        timestamp created_at
+    }
+
+    PRODUCT {
+        uuid product_id PK
+        string sku UK
+        string name
+        numeric base_price
+        boolean is_flash_sale
+    }
+
+    INVENTORY {
+        uuid inventory_id PK
+        uuid product_id FK
+        integer available_quantity
+        integer reserved_quantity
+        integer sold_quantity
+        bigint version
+        timestamp updated_at
+    }
+
+    INVENTORY_RESERVATION {
+        uuid reservation_id PK
+        uuid customer_id FK
+        uuid product_id FK
+        integer quantity
+        string status
+        timestamp expires_at
+        string idempotency_key UK
+    }
+
+    ORDERS {
+        uuid order_id PK
+        uuid customer_id FK
+        uuid reservation_id FK
+        uuid payment_id UK
+        string status
+        numeric total_amount
+        timestamp created_at
+    }
+
+    ORDER_ITEM {
+        uuid order_item_id PK
+        uuid order_id FK
+        uuid product_id FK
+        integer quantity
+        numeric unit_price
+    }
+
+    PAYMENT {
+        uuid payment_id PK
+        uuid order_id FK
+        uuid customer_id FK
+        numeric amount
+        string status
+        string transaction_reference
+        string idempotency_key UK
+    }`,
+        bullets: [
+          "<strong>7 Core Entities:</strong> Contains only the entities essential to flash sales: Customer, Product, Inventory, Reservation, Order, OrderItem, and Payment.",
+          "<strong>Non-Negative Constraints:</strong> available_quantity, reserved_quantity, and sold_quantity have database check constraints forbidding negative numbers.",
+          "<strong>Idempotency Uniqueness:</strong> Both INVENTORY_RESERVATION and PAYMENT enforce unique constraints on idempotency_key to prevent duplicates.",
+          "<strong>1-to-1 Protection:</strong> Orders strictly require a valid, non-expired reservation_id to exist."
+        ]
+      },
+      {
+        id: "lld-inv",
+        name: "11. Inventory Class Diagram (LLD)",
+        title: "Inventory LLD Class Diagram",
+        isHighlight: false,
+        code: `classDiagram
+    class Inventory {
+        -UUID productId
+        -int availableQuantity
+        -int reservedQuantity
+        -int soldQuantity
+        -long version
+        +reserve(int qty) boolean
+        +release(int qty) void
+        +confirmSale(int qty) void
+    }
+
+    class Reservation {
+        -UUID reservationId
+        -UUID customerId
+        -UUID productId
+        -int quantity
+        -String status
+        -DateTime expiresAt
+        -String idempotencyKey
+        +isExpired() boolean
+    }
+
+    class InventoryService {
+        -InventoryRepository inventoryRepo
+        +checkStock(UUID productId) int
+    }
+
+    class ReservationService {
+        -InventoryRepository inventoryRepo
+        -CacheClient cache
+        +reserveStock(UUID customerId, UUID productId, String key) ReservationResult
+        +releaseReservation(UUID reservationId) void
+    }
+
+    class InventoryRepository {
+        <<interface>>
+        +findByProductId(UUID productId) Inventory
+        +save(Inventory inventory) void
+        +atomicDecrement(UUID productId, int qty) boolean
+    }
+
+    Inventory "1" --> "*" Reservation : tracks
+    InventoryService --> InventoryRepository : uses
+    ReservationService --> InventoryRepository : uses
+    ReservationService --> Inventory : updates`,
+        bullets: [
+          "<strong>Inventory Aggregate:</strong> Enforces invariant available + reserved + sold == total within domain boundaries.",
+          "<strong>ReservationService:</strong> Coordinates fast in-memory checks with cache and records durable reservations.",
+          "<strong>InventoryRepository:</strong> Encapsulates atomic SQL updates (UPDATE inventory SET available = available - 1 WHERE available > 0)."
+        ]
+      }
+    ];
+
+    let currentIdx = 0;
+
+    // Build sidebar navigation dynamically
+    function buildNav() {
+      const navList = document.getElementById('nav-list');
+      navList.innerHTML = '';
+      diagrams.forEach((d, idx) => {
+        const li = document.createElement('li');
+        li.className = 'nav-item' + (d.isHighlight ? ' highlight' : '') + (idx === 0 ? ' active' : '');
+        li.textContent = d.name;
+        li.onclick = () => showDiagram(idx);
+        navList.appendChild(li);
+      });
+    }
+
+    async function showDiagram(idx) {
+      if (idx < 0) idx = 0;
+      if (idx >= diagrams.length) idx = diagrams.length - 1;
+      currentIdx = idx;
+      const d = diagrams[idx];
+
+      // Update Nav active
+      document.querySelectorAll('.nav-item').forEach((el, i) => {
+        el.classList.toggle('active', i === idx);
+      });
+
+      // Update Header
+      document.getElementById('slide-num').textContent = "DIAGRAM " + (idx + 1) + " OF " + diagrams.length;
+      document.getElementById('slide-title').textContent = d.title;
+
+      // Update Bullets
+      const bulletsList = document.getElementById('bullets-list');
+      bulletsList.innerHTML = d.bullets.map(b => "<li>" + b + "</li>").join('');
+
+      // Render Mermaid using modern mermaid.render API
+      const container = document.getElementById('diagram-container');
+      container.innerHTML = '<div style="color: #94a3b8; padding: 40px;">Rendering diagram...</div>';
+
+      try {
+        const renderId = 'mermaid-svg-' + idx + '-' + Math.floor(Math.random() * 100000);
+        const result = await mermaid.render(renderId, d.code);
+        container.innerHTML = result.svg;
+      } catch (err) {
+        console.error('Mermaid render error:', err);
+        container.innerHTML = '<div style="color: #f87171; padding: 20px; text-align: center;"><strong>Render Notice:</strong> ' + err.message + '<pre style="text-align: left; margin-top: 15px; background: #0f172a; padding: 14px; border-radius: 8px; color: #94a3b8; font-size: 0.85rem; overflow-x: auto;">' + d.code + '</pre></div>';
+      }
+    }
+
+    function prevDiagram() {
+      if (currentIdx > 0) showDiagram(currentIdx - 1);
+    }
+
+    function nextDiagram() {
+      if (currentIdx < diagrams.length - 1) showDiagram(currentIdx + 1);
+    }
+
+    // Keyboard navigation (Arrow keys)
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown') nextDiagram();
+      if (e.key === 'ArrowLeft' || e.key === 'PageUp') prevDiagram();
+    });
+
+    // Initialize
+    window.addEventListener('DOMContentLoaded', () => {
+      buildNav();
+      showDiagram(0);
+    });
+  </script>
+</body>
+</html>
